@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zillow Service API Example</title>
+    <script type="text/javascript"
+        src="webjars/jquery/2.2.4/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+      href="webjars/bootstrap/3.3.7/css/bootstrap.min.css"/>
+</head>
+<body>
+	<nav class="navbar navbar-inverse">
+	    <div class="container">
+	        <div class="navbar-header">
+	            <a class="navbar-brand" href="#">github.com/rjmahler</a>
+	        </div>
+	    </div>
+	</nav>
+	
+	<div class="container" style="min-height: 500px">
+	    <div class="starter-template">
+	        <h1>Zillow Address Search</h1>
+	        <form class="form-horizontal" id="search-form">
+	            <div class="form-group form-group-lg">
+	                <label class="col-sm-2 control-label">Address</label>
+	                <div class="col-sm-10">
+	                    <input type="text" class="form-control" id="address"/>
+	                </div>
+	            </div>
+	            <div class="form-group form-group-lg">
+	                <label class="col-sm-2 control-label">City,State or Zip</label>
+	                <div class="col-sm-10">
+	                    <input type="text" class="form-control" id="zip"/>
+	                </div>
+	            </div>
+	            <div class="form-group">
+	                <div class="col-sm-offset-2 col-sm-10">
+	                    <button type="submit" id="bth-search"
+	                            class="btn btn-primary btn-lg">Search
+	                    </button>
+	                </div>
+	            </div>
+	        </form>
+	        <div id="feedback"></div>
+	    </div>
+	</div>
+		
+    <script type="text/javascript">
+        $(document).ready(function(){
+        
+            $("#search-form").submit(function (event) {
+
+                event.preventDefault();
+                fire_search();
+
+            });
+            
+        });
+        
+        function fire_search() {
+        	
+        		if($("#address").val() == "") {
+        			alert("Address must be entered.");
+        			return false;
+        		} 
+        		
+        		if($("#zip").val() == "") {
+        			alert("City,State or Zip must be entered.");
+        			return false;
+        		}
+        		
+            $("#btn-search").prop("disabled", true);
+
+            $.ajax({
+                type: "GET",
+                contentType: "application/json",
+                url: "/api/zillow/searchresults",
+                data:{
+                		"address":$("#address").val(),
+                		"citystatezip": $("#zip").val(),
+                },
+                dataType: 'json',
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+
+                    var json = "<h4>Result</h4><pre>"
+                        + JSON.stringify(data, null, 4) + "</pre>";
+                    $('#feedback').html(json);
+
+                    console.log("SUCCESS : ", data);
+                    $("#btn-search").prop("disabled", false);
+
+                },
+                error: function (e) {
+
+                    var json = "<h4>Result</h4><pre>"
+                        + e.responseText + "</pre>";
+                    $('#feedback').html(json);
+
+                    console.log("ERROR : ", e);
+                    $("#btn-search").prop("disabled", false);
+
+                }
+            });
+        }
+    </script>
+</body>
+</html>
